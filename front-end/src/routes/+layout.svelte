@@ -10,7 +10,6 @@
 
 <style lang="postcss">
     :global(html) {
-        background-color: hsl(49 26.8% 92% /1);
         font-family: 'Vollkorn', serif;
         font-optical-sizing: auto;
     }
@@ -22,10 +21,5 @@
     #body {
         display: flex;
         flex-direction: column;
-    }
-
-    #slot {
-        width: 30rem;
-        margin: -10rem 0 0 18rem;
     }
 </style>
