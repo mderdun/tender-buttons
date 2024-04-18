@@ -1983,10 +1983,17 @@
         </div>
         <div id="info">
             <h2>Info</h2>
+            <p>Sensorimotor-annotated edition of Gertrude Stein's <span style="font: italic">Tender Buttons</span> (1914).</p>
+            <p>Stein's text was processed using <a href="doi.org/10.3758/s13428-019-01316-z">The Lancaster Sensorimotor Norms</a>,
+                a collection of ratings across 40,000 English words on 11 dimensions of sensory and motor experience.
+                The words of Stein's text are colour-coded according to their dominant sensorimotor category, that is,
+                the dimension which produced the highest average rating. The opacity of the highlight is a sloping scale
+                reflecting the exclusivity score of the word. The exclusivity score is a measure of how multidimensional
+                a word is, with higher scores (hence less opaque highlights) indicating a greater dominance of a single dimension.
+            </p>
             <p>This project was made to accompany an essay written for the Nonsense Literature module at Durham
                 University, as part of the third year of the English Literature degree.
             </p>
-
             <p>Text from the <a href="https://www.gutenberg.org/ebooks/15396">Project Gutenberg edition</a>,
                 produced by Suzanne Shell, Josephine Paolucci and the Online Distributed Proofreading Team.
                 Their text was released on March 17, 2005, updated most recently on December 14, 2020. The
@@ -2026,6 +2033,12 @@
         font-weight: 100;
         /*text-indent: 2rem;*/
         margin: 0 0;
+    }
+
+    .portrait p:not(:first-of-type)::before {
+    content: ' ';
+    width: 3rem;
+    display: inline-block;
     }
 
     #contents {
@@ -2075,7 +2088,7 @@
     h3 {
         font-size: 1.5em;
         font-weight: 100;
-        margin: 0 0 1em;
+        margin: 0 0 0.3em;
     }
 
     #key p {
