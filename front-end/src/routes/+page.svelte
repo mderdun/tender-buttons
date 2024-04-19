@@ -5,52 +5,47 @@
 
     let wordsData: { [key: string]: string } = {};
     let colourDict = {
-        "haptic": "#228b22",
-        "auditory": "#1e90ff",
-        "olfactory": "#f4a460",
-        "gustatory": "#b03060",
-        "visual": "#ff0000",
-        "interoceptive": "#00ff00",
-        "mouth_throat": "#ff00ff",
-        "hand_arm": "#2f4f4f",
-        "foot_leg": "#00008b",
-        "head": "#00ffff",
-        "torso": "#ffff00"
+        "haptic": "#ffdf00",
+        "auditory": "#c71585",
+        "olfactory": "#00ff00",
+        "gustatory": "#00bfff",
+        "visual": "#ff4500",
+        "interoceptive": "#7c550c",
     };
 
-    let minOpacity = 0.05;
+    let minOpacity = 0.15;
     let maxOpacity = 1;
 
     function getOpacity(score: number): number {
         const minScore = 0.021;
         const maxScore = 0.531;
-        const normalizedScore = (score - minScore) / (maxScore - minScore);
-        const power = 2; // Adjust this value to change the curve
-        return minOpacity + (maxOpacity - minOpacity) * Math.pow(normalizedScore, power);
+        let normalizedScore = (score - minScore) / (maxScore - minScore);
+
+        // Ensure normalizedScore is within the range of 0 and 1
+        normalizedScore = Math.max(0, Math.min(1, normalizedScore));
+
+        const power = 3; // Adjust this value to change the curve
+        let opacity = minOpacity + (maxOpacity - minOpacity) * Math.pow(normalizedScore, power);
+
+        // Ensure opacity is within the range of minOpacity and maxOpacity
+        opacity = Math.max(minOpacity, Math.min(maxOpacity, opacity));
+
+        return opacity;
     }
 
     function getColoredWord(wordText: string, score: number): string {
         let primaryWord = wordText.trim().toLowerCase();
         primaryWord = primaryWord.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/, '');
-        let alternateWord = null;
-        const wordParts = primaryWord.split(' \\[');
-        if (wordParts.length > 1) {
-            primaryWord = wordParts[0].trim();
-            alternateWord = wordParts[1].replace(']', '').trim();
-        }
+
+        console.log('Processing word:', primaryWord);
 
         if (wordsData[primaryWord]) {
             const color = colourDict[wordsData[primaryWord].split(',')[0]];
             const opacity = getOpacity(parseFloat(wordsData[primaryWord].split(',')[1]));
             console.log('Applying color:', color, 'Opacity:', opacity);
             return `<span style="background-color: ${color}${Math.round(opacity * 255).toString(16).padStart(2, '0')}; border-radius: 4px; padding: 2px 4px;">${wordText}</span>`;
-        } else if (alternateWord && wordsData[alternateWord]) {
-            const color = colourDict[wordsData[alternateWord].split(',')[0]];
-            const opacity = getOpacity(parseFloat(wordsData[alternateWord].split(',')[1]));
-            console.log('Applying color:', color, 'Opacity:', opacity);
-            return `<span style="background-color: ${color}${Math.round(opacity * 255).toString(16).padStart(2, '0')}; border-radius: 4px; padding: 2px 4px;">${wordText}</span>`;
         } else {
-            console.log('Word not found in wordsData:', primaryWord, alternateWord);
+            console.log('Word not found in wordsData:', primaryWord);
             return wordText;
         }
     }
@@ -64,9 +59,9 @@
         const parsedData = csvParse(data);
         console.log('CSV data loaded:', parsedData);
 
-        // Create a mapping between the words and their 'Dominant.sensorimotor' and 'Exclusivity.sensorimotor' values
+        // Create a mapping between the words and their 'Dominant.perceptual' and 'Exclusivity.perceptual' values
         parsedData.forEach((row) => {
-            wordsData[row.word.toLowerCase()] = row['Dominant.sensorimotor'] + ',' + row['Exclusivity.sensorimotor'];
+            wordsData[row.word.toLowerCase().trim()] = row['Dominant.perceptual'] + ',' + row['Exclusivity.perceptual'];
         });
         console.log('wordsData:', wordsData);
 
@@ -82,7 +77,7 @@
             const coloredWords = Array.from(words).map((word: Element) => {
                 const wordElement = word as HTMLElement;
                 const wordText = wordElement.textContent || '';
-                const [exclusivityScore] = (wordsData[wordText?.toLowerCase()] || '0,0').split(',');
+                const [exclusivityScore] = (wordsData[wordText?.toLowerCase().trim()] || '0,0').split(',');
                 const score = parseFloat(exclusivityScore);
                 return getColoredWord(wordText, score);
             });
@@ -111,19 +106,12 @@
             <span style="font-size: 2.5rem; margin-bottom: 0; font-weight: 500;">Key</span>
             <div id="key" style="display: flex;">
                 <div id="sense-key" style="display: flex; flex-direction: column; width: 10rem;">
-                    <p><span class="keycol" style="background: #228b22" />Touch</p>
-                    <p><span class="keycol" style="background: #1e90ff" />Sound</p>
-                    <p><span class="keycol" style="background: #f4a460" />Smell</p>
-                    <p><span class="keycol" style="background: #b03060" />Taste</p>
-                    <p><span class="keycol" style="background: #ff0000" />Sight</p>
-                    <p><span class="keycol" style="background: #00ff00" />Interoception</p>
-                </div>
-                <div id="motor-key" style="display: flex; flex-direction: column; width: 10rem;">
-                    <p><span class="keycol" style="background: #ff00ff" />Mouth/Throat</p>
-                    <p><span class="keycol" style="background: #2f4f4f" />Hand/Arm</p>
-                    <p><span class="keycol" style="background: #00008b" />Foot/Leg</p>
-                    <p><span class="keycol" style="background: #00ffff" />Head</p>
-                    <p><span class="keycol" style="background: #ffff00" />Torso</p>
+                    <p><span class="keycol" style="background: #ff4500" />Sight</p>
+                    <p><span class="keycol" style="background: #7c550c" />Interoception</p>
+                    <p><span class="keycol" style="background: #c71585" />Sound</p>
+                    <p><span class="keycol" style="background: #00bfff" />Taste</p>
+                    <p><span class="keycol" style="background: #ffdf00" />Touch</p>
+                    <p><span class="keycol" style="background: #00ff00" />Smell</p>
                 </div>
             </div>
         </div>
@@ -1984,12 +1972,12 @@
         <div id="info">
             <h2>Info</h2>
             <p>Sensorimotor-annotated edition of Gertrude Stein's <span style="font: italic">Tender Buttons</span> (1914).</p>
-            <p>Stein's text was processed using <a href="doi.org/10.3758/s13428-019-01316-z">The Lancaster Sensorimotor Norms</a>,
+            <p>Stein's text was processed using <a href="https://doi.org/10.3758/s13428-019-01316-z">The Lancaster Sensorimotor Norms</a>,
                 a collection of ratings across 40,000 English words on 11 dimensions of sensory and motor experience.
-                The words of Stein's text are colour-coded according to their dominant sensorimotor category, that is,
-                the dimension which produced the highest average rating. The opacity of the highlight is a sloping scale
-                reflecting the exclusivity score of the word. The exclusivity score is a measure of how multidimensional
-                a word is, with higher scores (hence less opaque highlights) indicating a greater dominance of a single dimension.
+                The words of Stein's text are colour-coded according to their dominant sensory category, that is,
+                the dimension which produced the highest average rating in each respective word.
+                The opacity of the highlight is rendered on a sloping scale reflecting the exclusivity score of the word.
+                The exclusivity score is a measure of how multidimensional a word is, with higher scores (hence bolder highlights) indicating a greater dominance of a single dimension.
             </p>
             <p>This project was made to accompany an essay written for the Nonsense Literature module at Durham
                 University, as part of the third year of the English Literature degree.
@@ -2031,11 +2019,10 @@
         font-size: 1.3em;
         line-height: 1.8em;
         font-weight: 100;
-        /*text-indent: 2rem;*/
         margin: 0 0;
     }
 
-    .portrait p:not(:first-of-type)::before {
+    .portrait p:not(:first-of-type)::before, #essay p:not(:first-of-type)::before, #info p:not(:first-of-type)::before {
     content: ' ';
     width: 3rem;
     display: inline-block;
@@ -2079,10 +2066,10 @@
     h2::after {
         content: "";
         display: block;
-        width: 100%; /* Adjust the width as needed */
-        height: 8px; /* Adjust the height as needed */
-        background-color: black; /* Adjust the color as needed */
-        margin: 2px auto; /* Adjust the margin as needed */
+        width: 100%;
+        height: 8px;
+        background-color: black;
+        margin: 2px auto;
     }
 
     h3 {
