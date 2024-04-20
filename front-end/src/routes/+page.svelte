@@ -1974,7 +1974,14 @@
             <p>Sensorimotor-annotated edition of Gertrude Stein's <span style="font: italic">Tender Buttons</span> (1914).</p>
             <p>Stein's text was processed using <a href="https://doi.org/10.3758/s13428-019-01316-z">The Lancaster Sensorimotor Norms</a>,
                 a collection of ratings across 40,000 English words on 11 dimensions of sensory and motor experience.
-                The words of Stein's text are colour-coded according to their dominant sensory category, that is,
+                The text was preprocessed and cleaned to remove punctuation and capitalisation, to compile a word list.
+                This wordlist was further processed to remove stopwords (common words such as 'the', 'and', 'a', etc.).
+                The remaining words were extracted from the Lancaster norms dataset to form a data subset.
+                Words which were not present in the Lancaster norms were almost exclusively variants of other words that
+                were present in the dataset (variations in tense, plurality, American/British spelling, etc.). Words which
+                were too distinct to be matched to the Lancaster norms were removed from the dataset.
+            </p>
+            <p>The words of Stein's text are here colour-coded according to their dominant sensory category. This is simply
                 the dimension which produced the highest average rating in each respective word.
                 The opacity of the highlight is rendered on a sloping scale reflecting the exclusivity score of the word.
                 The exclusivity score is a measure of how multidimensional a word is, with higher scores (hence bolder highlights) indicating a greater dominance of a single dimension.
