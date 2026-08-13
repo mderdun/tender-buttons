@@ -49,7 +49,6 @@
 	bind:this={root}
 	data-scheme={settings.scheme}
 	data-annotations={settings.annotations ? 'on' : 'off'}
-	style="--intensity: {settings.intensity}"
 	onclick={handleClick}
 >
 	{#each sections as section (section.id)}

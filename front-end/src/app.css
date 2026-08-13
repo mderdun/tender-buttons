@@ -196,7 +196,12 @@ button {
  */
 
 .reader {
-	--intensity: 1;
+	/* Fixed at the top of the range the strength control used to offer. Below
+	   this the six hues are not reliably told apart in running text, and telling
+	   them apart is the whole point. The per-word exclusivity band still sets the
+	   weight, but at this multiplier every band above the second clamps to full:
+	   distinguishing the colours wins over the finer gradient. */
+	--intensity: 2;
 }
 
 /*
