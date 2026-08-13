@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: front-end
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front-end/package-lock.json
+
+      - run: npm ci
+
+      # The generated data is committed so builds never depend on ../data being
+      # present. Regenerating here catches a commit where the two have drifted.
+      - name: Regenerate data and check for drift
+        run: |
+          npm run data
+          git diff --exit-code -- src/lib/data
+
+      - run: npm run check
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: front-end/build

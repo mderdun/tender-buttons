@@ -1,10 +1,32 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<title>A Sensory Tender Buttons</title>
 		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<meta
+			name="description"
+			content="Gertrude Stein's Tender Buttons (1914), with every word marked for the sense it draws on, using the Lancaster Sensorimotor Norms."
+		/>
+		<meta property="og:title" content="Tender Buttons — a sensorimotor edition" />
+		<meta
+			property="og:description"
+			content="Gertrude Stein's Tender Buttons (1914), with every word marked for the sense it draws on."
+		/>
+		<meta property="og:type" content="website" />
+		<script>
+			// Applied before first paint so a chosen theme never flashes the other one.
+			try {
+				const theme = localStorage.getItem('tender-buttons:theme');
+				if (theme === 'light' || theme === 'dark') {
+					document.documentElement.setAttribute('data-theme', theme);
+				}
+			} catch {
+				/* storage unavailable; fall back to the system preference */
+			}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
