@@ -22,8 +22,6 @@
 			}))
 			.filter((section) => section.portraits.length > 0);
 	});
-
-	let total = $derived(matches.reduce((sum, s) => sum + s.portraits.length, 0));
 </script>
 
 <nav class="contents" aria-label="Contents">
@@ -35,13 +33,9 @@
 		autocomplete="off"
 	/>
 
-	{#if filter.trim()}
-		<p class="label result" role="status">{total} of 110</p>
-	{/if}
-
 	{#each matches as section (section.id)}
 		<div class="section">
-			<a class="section-link label" href="#{section.id}">{section.title}</a>
+			<a class="section-link" href="#{section.id}">{section.title}</a>
 			<ul>
 				{#each section.portraits as portrait (portrait.id)}
 					<li>
@@ -86,10 +80,6 @@
 		color: var(--graphite);
 	}
 
-	.result {
-		margin: -0.4rem 0 0;
-	}
-
 	.section {
 		display: flex;
 		flex-direction: column;
@@ -97,14 +87,16 @@
 	}
 
 	.section-link {
-		color: var(--ink);
+		text-transform: uppercase;
+		font-size: 1.5rem;
+		line-height: 1.15;
+		color: var(--graphite);
 		text-decoration: none;
-		padding-bottom: 0.25rem;
-		border-bottom: 1px solid var(--rule);
+		transition: all 0.3s ease;
 	}
 
 	.section-link:hover {
-		border-bottom-color: var(--ink);
+		color: var(--ink);
 	}
 
 	ul {

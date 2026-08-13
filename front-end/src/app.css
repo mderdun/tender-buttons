@@ -1,21 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400..900;1,400..900&display=swap');
 
 /*
- * The interface is deliberately achromatic. Every colour on the page comes from
- * the sensorimotor data, so the annotation layer is the only thing that carries
- * hue and the reader's eye has nowhere else to go.
+ * Colours, type and rules follow the 1914 edition as the project originally set
+ * it: the dark forest green of the cover, the olive of the button, and cream
+ * paper. Interface colour is kept to those three so the sensorimotor hues stay
+ * the only other colour on the page.
  */
 
 :root {
-	--paper: #edeee9;
-	--surface: #f7f8f4;
-	--sunken: #e3e5de;
-	--ink: #14201a;
-	--ink-2: #3c4a41;
-	--graphite: #6b776f;
-	--rule: #d2d6cc;
-	--rule-strong: #b3b9ac;
-	--shadow: 20 32 26;
+	--paper: #f0eee5;
+	--surface: #f7f5ee;
+	--sunken: #e2dfd2;
+	--ink: #182d1a;
+	--ink-2: #3a4c3c;
+	--graphite: #6d7a6c;
+	--rule: #cdc9b8;
+	--rule-strong: #a9a894;
+	--olive: #848556;
+	--shadow: 24 45 26;
 
 	/* Perceptual categories. Chosen for separability by lightness as well as hue,
 	   so they survive greyscale and the common colour-vision deficiencies; the
@@ -34,8 +36,7 @@
 	--s-torso: #6355a6;
 	--s-foot_leg: #3a7a41;
 
-	--serif: 'Spectral', 'Iowan Old Style', Palatino, Georgia, serif;
-	--mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	--serif: 'Vollkorn', 'Iowan Old Style', Palatino, Georgia, serif;
 
 	--rail-left: 16.5rem;
 	--rail-right: 15.5rem;
@@ -44,14 +45,15 @@
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) {
-		--paper: #131714;
-		--surface: #1b211c;
-		--sunken: #0d110e;
-		--ink: #e9ece3;
-		--ink-2: #c2c9bd;
-		--graphite: #8d988e;
-		--rule: #2b332c;
-		--rule-strong: #414b42;
+		--paper: #121a13;
+		--surface: #1a241b;
+		--sunken: #0b110c;
+		--ink: #f0eee5;
+		--ink-2: #d0cec1;
+		--graphite: #91a08f;
+		--rule: #2a382b;
+		--rule-strong: #3f4e40;
+		--olive: #a3a468;
 		--shadow: 0 0 0;
 
 		--s-visual: #74aae9;
@@ -70,14 +72,15 @@
 }
 
 :root[data-theme='dark'] {
-	--paper: #131714;
-	--surface: #1b211c;
-	--sunken: #0d110e;
-	--ink: #e9ece3;
-	--ink-2: #c2c9bd;
-	--graphite: #8d988e;
-	--rule: #2b332c;
-	--rule-strong: #414b42;
+	--paper: #121a13;
+	--surface: #1a241b;
+	--sunken: #0b110c;
+	--ink: #f0eee5;
+	--ink-2: #d0cec1;
+	--graphite: #91a08f;
+	--rule: #2a382b;
+	--rule-strong: #3f4e40;
+	--olive: #a3a468;
 	--shadow: 0 0 0;
 
 	--s-visual: #74aae9;
@@ -109,9 +112,11 @@ html {
 
 body {
 	margin: 0;
-	background: var(--paper);
+	/* No background here: the ported #bg-strip sits at z-index -1, so a painted
+	   body box would cover it. html carries the page colour instead. */
 	color: var(--ink);
 	font-family: var(--serif);
+	font-optical-sizing: auto;
 	font-size: 17px;
 	line-height: 1.6;
 	font-weight: 400;
@@ -121,12 +126,7 @@ body {
 
 a {
 	color: inherit;
-	text-decoration-color: var(--rule-strong);
-	text-underline-offset: 2px;
-}
-
-a:hover {
-	text-decoration-color: currentColor;
+	text-decoration: none;
 }
 
 :focus-visible {
@@ -155,19 +155,35 @@ button {
 	white-space: nowrap;
 }
 
-/* Small caps labels for the apparatus: controls, legends, counts, metadata. */
+/* Letterspaced caps for the apparatus, set in the same face as the text. */
 .label {
-	font-family: var(--mono);
-	font-size: 0.66rem;
-	font-weight: 500;
-	letter-spacing: 0.13em;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
 	text-transform: uppercase;
 	color: var(--graphite);
 }
 
 .numeric {
-	font-family: var(--mono);
-	font-variant-numeric: tabular-nums;
+	font-variant-numeric: tabular-nums lining-nums;
+}
+
+/*
+ * The rule under a section title, taken from the 1914 edition: a hairline, a
+ * thread of white, then a heavy bar. Used for the three book divisions and
+ * again at the head of the colophon.
+ */
+.book-rule {
+	border-bottom: 3px solid var(--ink);
+}
+
+.book-rule::after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 8px;
+	margin: 2px auto;
+	background: var(--ink);
 }
 
 /* ------------------------------------------------------- annotation marks */

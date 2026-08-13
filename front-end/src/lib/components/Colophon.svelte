@@ -3,7 +3,7 @@
 </script>
 
 <section class="colophon" id="about" aria-labelledby="about-heading">
-	<h2 id="about-heading">About this edition</h2>
+	<h2 id="about-heading">Info</h2>
 
 	<p>
 		This is Gertrude Stein's <em>Tender Buttons</em> (1914) read against the
@@ -27,14 +27,6 @@
 		The <span class="numeric">{stats.unmatchedTypes}</span> distinct words left unmarked are almost
 		all function words, deliberately excluded. A handful are Stein's own &mdash;
 		<em>excreate</em>, <em>knealer</em>, <em>cocups</em> &mdash; which no norm set can rate.
-	</p>
-
-	<h3>What it can and cannot show</h3>
-	<p>
-		The norms describe how a large sample of English speakers rate words in isolation. They say
-		nothing about Stein's syntax, her repetitions, or the way a word shifts under the pressure of
-		the words around it. What the marking gives is a distribution: which senses her vocabulary
-		reaches for, and how insistently. Reading is still the argument.
 	</p>
 
 	<h3>Sources</h3>
@@ -100,5 +92,17 @@
 
 	.numeric {
 		color: var(--ink);
+	}
+
+	/* Links are undecorated globally, as in the original; in running prose they
+	   still need to be identifiable as links. */
+	.colophon a {
+		text-decoration: underline;
+		text-decoration-color: var(--rule-strong);
+		text-underline-offset: 2px;
+	}
+
+	.colophon a:hover {
+		text-decoration-color: currentColor;
 	}
 </style>

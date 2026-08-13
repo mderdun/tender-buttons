@@ -133,11 +133,6 @@
 					</div>
 				</dl>
 
-				<p class="caption">
-					Mean rating on each of the eleven dimensions, 0&ndash;{MAX_RATING}. The figures beside the
-					two headings above are exclusivity &mdash; how far a single dimension dominates the rest.
-				</p>
-
 				<ul class="bars">
 					{#each ranked as dimension (dimension.id)}
 						<li>
@@ -155,10 +150,6 @@
 				</ul>
 			{/if}
 		</div>
-	{:else}
-		<p class="note">
-			Select any marked word in the text, or search above, to see its full sensorimotor profile.
-		</p>
 	{/if}
 </section>
 
@@ -279,13 +270,6 @@
 	.excl {
 		margin-left: auto;
 		font-size: 0.74rem;
-		color: var(--graphite);
-	}
-
-	.caption {
-		margin: 0;
-		font-size: 0.74rem;
-		line-height: 1.45;
 		color: var(--graphite);
 	}
 

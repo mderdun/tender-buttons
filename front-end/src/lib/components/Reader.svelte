@@ -54,10 +54,7 @@
 >
 	{#each sections as section (section.id)}
 		<section class="cat" id={section.id} aria-labelledby="{section.id}-heading">
-			<h2 id="{section.id}-heading">
-				<span>{section.title}</span>
-				<span class="count label numeric">{section.portraits.length}</span>
-			</h2>
+			<h2 class="book-rule" id="{section.id}-heading">{section.title}</h2>
 			<div class="portraits">
 				{#each section.portraits as portrait (portrait.id)}
 					<Portrait {portrait} />
@@ -78,29 +75,20 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2.6rem;
-		scroll-margin-top: 5rem;
+		scroll-margin-top: 2rem;
 	}
 
+	/* Centred caps over the rule, as the original set them. */
 	h2 {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 1rem;
 		margin: 0;
-		padding-bottom: 0.5rem;
-		border-bottom: 1px solid var(--ink);
-		font-size: 2.1rem;
-		font-weight: 300;
-		letter-spacing: 0.02em;
-	}
-
-	.count {
-		flex: none;
+		text-align: center;
+		text-transform: uppercase;
+		font-size: 3rem;
+		font-weight: 400;
 	}
 
 	.portraits {
 		display: flex;
 		flex-direction: column;
-		gap: 2.8rem;
 	}
 </style>

@@ -66,6 +66,8 @@
 
 <a class="skip" href="#objects">Skip to the text</a>
 
+<Masthead />
+
 <div class="shell" class:panel-open={panel !== null}>
 	<div class="topbar">
 		<button
@@ -87,20 +89,12 @@
 
 	<aside class="rail left" class:open={panel === 'contents'} aria-label="Contents and index">
 		<div class="rail-inner">
-			<Masthead />
+			<h2 class="rail-heading">Contents</h2>
 			<Contents {sections} {activeId} />
 		</div>
 	</aside>
 
 	<main class="column">
-		<p class="preamble">
-			Every word Stein uses that carries a rating in the Lancaster Sensorimotor Norms is underlined
-			for the sense it draws on most. The weight of the underline is how exclusively that one sense
-			dominates the rest; the pattern repeats the distinction, so the marking survives without
-			colour. Words with no rating &mdash; ordinary function words, and Stein's coinages &mdash; are
-			left plain.
-		</p>
-
 		<Reader {sections} {selected} onselect={select} />
 		<Colophon />
 	</main>
@@ -108,7 +102,7 @@
 	<aside class="rail right" class:open={panel === 'apparatus'} aria-label="Marking controls">
 		<div class="rail-inner">
 			<div class="apparatus-head">
-				<span class="label">Apparatus</span>
+				<span class="label">Marking</span>
 				<ThemeToggle />
 			</div>
 			<Controls />
@@ -148,6 +142,18 @@
 		align-items: start;
 	}
 
+	.rail.left {
+		margin-top: 2rem;
+	}
+
+	.rail.right {
+		margin-top: -10rem;
+	}
+
+	.rail.right .rail-inner {
+		padding-top: 2.5rem;
+	}
+
 	.rail {
 		position: sticky;
 		top: 0;
@@ -161,7 +167,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1.6rem;
-		padding: 2.4rem 0;
+		padding: 0 0 2.4rem;
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		scrollbar-width: thin;
@@ -178,20 +184,22 @@
 
 	.column {
 		max-width: var(--measure);
-		margin: 0 auto;
-		padding: 4.5rem 0 6rem;
+		/* Ported from the original: the button hangs below the strip, and the text
+		   column is pulled back up under it rather than starting beneath it. The
+		   top padding stands in for the default h2 margin the old build relied on
+		   to clear the strip. */
+		margin: -10rem auto 0;
+		padding: 2.5rem 0 6rem;
 		display: flex;
 		flex-direction: column;
 		gap: 3.5rem;
 	}
 
-	.preamble {
+	.rail-heading {
 		margin: 0;
-		font-size: 0.94rem;
-		line-height: 1.65;
-		color: var(--ink-2);
-		padding-bottom: 1.4rem;
-		border-bottom: 1px solid var(--rule);
+		font-size: 2.5rem;
+		font-weight: 500;
+		line-height: 1;
 	}
 
 	/* -- narrow: rails become drawers -- */
@@ -211,6 +219,7 @@
 		}
 
 		.rail.right {
+			margin-top: 0;
 			position: fixed;
 			top: 0;
 			right: 0;
@@ -238,7 +247,7 @@
 	@media (max-width: 900px) {
 		.shell {
 			grid-template-columns: minmax(0, 1fr);
-			padding: 0 1.25rem;
+			padding: 1.5rem 1.25rem 0;
 		}
 
 		.topbar {
@@ -274,6 +283,7 @@
 		}
 
 		.rail.left {
+			margin-top: 0;
 			position: fixed;
 			top: 0;
 			left: 0;
@@ -298,6 +308,7 @@
 		}
 
 		.column {
+			margin-top: 0;
 			padding: 2rem 0 4rem;
 			gap: 2.5rem;
 		}
