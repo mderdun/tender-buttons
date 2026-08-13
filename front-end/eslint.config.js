@@ -2,22 +2,32 @@ import js from '@eslint/js';
 import svelte from 'eslint-plugin-svelte';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
+import ts from 'typescript-eslint';
+import svelteConfig from './svelte.config.js';
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
-export default [
+export default ts.config(
 	js.configs.recommended,
-	...svelte.configs['flat/recommended'],
+	...ts.configs.recommended,
+	...svelte.configs.recommended,
 	prettier,
-	...svelte.configs['flat/prettier'],
+	...svelte.configs.prettier,
 	{
 		languageOptions: {
-			globals: {
-				...globals.browser,
-				...globals.node
+			globals: { ...globals.browser, ...globals.node }
+		}
+	},
+	{
+		files: ['**/*.svelte', '**/*.svelte.ts'],
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				extraFileExtensions: ['.svelte'],
+				parser: ts.parser,
+				svelteConfig
 			}
 		}
 	},
 	{
-		ignores: ['build/', '.svelte-kit/', 'package/']
+		ignores: ['build/', '.svelte-kit/', 'src/lib/data/*.json']
 	}
-];
+);

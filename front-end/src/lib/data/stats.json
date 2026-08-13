@@ -1,0 +1,502 @@
+{
+	"portraits": 110,
+	"sections": [
+		{
+			"id": "objects",
+			"title": "Objects",
+			"portraits": 58
+		},
+		{
+			"id": "food",
+			"title": "Food",
+			"portraits": 51
+		},
+		{
+			"id": "rooms",
+			"title": "Rooms",
+			"portraits": 1
+		}
+	],
+	"tokens": 14901,
+	"matched": 6624,
+	"coverage": 0.445,
+	"vocabulary": 2502,
+	"bands": {
+		"perceptual": [
+			0.279,
+			0.351,
+			0.422,
+			0.517
+		],
+		"action": [
+			0.192,
+			0.27,
+			0.339,
+			0.443
+		]
+	},
+	"perceptualCounts": {
+		"visual": 1797,
+		"auditory": 222,
+		"interoceptive": 242,
+		"gustatory": 114,
+		"olfactory": 14,
+		"haptic": 113
+	},
+	"actionCounts": {
+		"head": 1479,
+		"mouth": 302,
+		"hand_arm": 562,
+		"foot_leg": 110,
+		"torso": 49
+	},
+	"droppedRows": {
+		"numeric": [
+			"2",
+			"3",
+			"4"
+		],
+		"duplicate": [
+			"sack"
+		]
+	},
+	"unmatchedTypes": 109,
+	"unmatched": [
+		{
+			"word": "a",
+			"count": 1113
+		},
+		{
+			"word": "is",
+			"count": 1015
+		},
+		{
+			"word": "and",
+			"count": 783
+		},
+		{
+			"word": "the",
+			"count": 547
+		},
+		{
+			"word": "it",
+			"count": 431
+		},
+		{
+			"word": "there",
+			"count": 389
+		},
+		{
+			"word": "that",
+			"count": 334
+		},
+		{
+			"word": "in",
+			"count": 330
+		},
+		{
+			"word": "not",
+			"count": 328
+		},
+		{
+			"word": "no",
+			"count": 251
+		},
+		{
+			"word": "to",
+			"count": 230
+		},
+		{
+			"word": "of",
+			"count": 210
+		},
+		{
+			"word": "more",
+			"count": 160
+		},
+		{
+			"word": "all",
+			"count": 138
+		},
+		{
+			"word": "so",
+			"count": 125
+		},
+		{
+			"word": "this",
+			"count": 122
+		},
+		{
+			"word": "was",
+			"count": 122
+		},
+		{
+			"word": "be",
+			"count": 100
+		},
+		{
+			"word": "an",
+			"count": 95
+		},
+		{
+			"word": "any",
+			"count": 93
+		},
+		{
+			"word": "are",
+			"count": 87
+		},
+		{
+			"word": "why",
+			"count": 78
+		},
+		{
+			"word": "than",
+			"count": 70
+		},
+		{
+			"word": "which",
+			"count": 70
+		},
+		{
+			"word": "if",
+			"count": 63
+		},
+		{
+			"word": "when",
+			"count": 63
+		},
+		{
+			"word": "with",
+			"count": 62
+		},
+		{
+			"word": "does",
+			"count": 61
+		},
+		{
+			"word": "has",
+			"count": 52
+		},
+		{
+			"word": "what",
+			"count": 49
+		},
+		{
+			"word": "very",
+			"count": 43
+		},
+		{
+			"word": "then",
+			"count": 36
+		},
+		{
+			"word": "for",
+			"count": 35
+		},
+		{
+			"word": "same",
+			"count": 35
+		},
+		{
+			"word": "they",
+			"count": 34
+		},
+		{
+			"word": "by",
+			"count": 28
+		},
+		{
+			"word": "as",
+			"count": 26
+		},
+		{
+			"word": "have",
+			"count": 24
+		},
+		{
+			"word": "between",
+			"count": 23
+		},
+		{
+			"word": "at",
+			"count": 21
+		},
+		{
+			"word": "where",
+			"count": 21
+		},
+		{
+			"word": "can",
+			"count": 20
+		},
+		{
+			"word": "only",
+			"count": 20
+		},
+		{
+			"word": "some",
+			"count": 20
+		},
+		{
+			"word": "being",
+			"count": 17
+		},
+		{
+			"word": "were",
+			"count": 17
+		},
+		{
+			"word": "on",
+			"count": 15
+		},
+		{
+			"word": "out",
+			"count": 15
+		},
+		{
+			"word": "do",
+			"count": 14
+		},
+		{
+			"word": "should",
+			"count": 13
+		},
+		{
+			"word": "up",
+			"count": 13
+		},
+		{
+			"word": "because",
+			"count": 12
+		},
+		{
+			"word": "did",
+			"count": 12
+		},
+		{
+			"word": "but",
+			"count": 11
+		},
+		{
+			"word": "such",
+			"count": 11
+		},
+		{
+			"word": "been",
+			"count": 10
+		},
+		{
+			"word": "her",
+			"count": 10
+		},
+		{
+			"word": "into",
+			"count": 8
+		},
+		{
+			"word": "from",
+			"count": 7
+		},
+		{
+			"word": "had",
+			"count": 7
+		},
+		{
+			"word": "he",
+			"count": 7
+		},
+		{
+			"word": "just",
+			"count": 7
+		},
+		{
+			"word": "or",
+			"count": 7
+		},
+		{
+			"word": "over",
+			"count": 7
+		},
+		{
+			"word": "will",
+			"count": 7
+		},
+		{
+			"word": "again",
+			"count": 6
+		},
+		{
+			"word": "other",
+			"count": 5
+		},
+		{
+			"word": "them",
+			"count": 5
+		},
+		{
+			"word": "under",
+			"count": 5
+		},
+		{
+			"word": "you",
+			"count": 4
+		},
+		{
+			"word": "about",
+			"count": 3
+		},
+		{
+			"word": "having",
+			"count": 3
+		},
+		{
+			"word": "how",
+			"count": 3
+		},
+		{
+			"word": "most",
+			"count": 3
+		},
+		{
+			"word": "now",
+			"count": 3
+		},
+		{
+			"word": "shed",
+			"count": 3
+		},
+		{
+			"word": "these",
+			"count": 3
+		},
+		{
+			"word": "we",
+			"count": 3
+		},
+		{
+			"word": "before",
+			"count": 2
+		},
+		{
+			"word": "both",
+			"count": 2
+		},
+		{
+			"word": "each",
+			"count": 2
+		},
+		{
+			"word": "excreate",
+			"count": 2
+		},
+		{
+			"word": "i",
+			"count": 2
+		},
+		{
+			"word": "knealer",
+			"count": 2
+		},
+		{
+			"word": "me",
+			"count": 2
+		},
+		{
+			"word": "nor",
+			"count": 2
+		},
+		{
+			"word": "off",
+			"count": 2
+		},
+		{
+			"word": "re",
+			"count": 2
+		},
+		{
+			"word": "sac",
+			"count": 2
+		},
+		{
+			"word": "too",
+			"count": 2
+		},
+		{
+			"word": "who",
+			"count": 2
+		},
+		{
+			"word": "after",
+			"count": 1
+		},
+		{
+			"word": "c",
+			"count": 1
+		},
+		{
+			"word": "cocups",
+			"count": 1
+		},
+		{
+			"word": "down",
+			"count": 1
+		},
+		{
+			"word": "e",
+			"count": 1
+		},
+		{
+			"word": "f",
+			"count": 1
+		},
+		{
+			"word": "few",
+			"count": 1
+		},
+		{
+			"word": "its",
+			"count": 1
+		},
+		{
+			"word": "itself",
+			"count": 1
+		},
+		{
+			"word": "letters",
+			"count": 1
+		},
+		{
+			"word": "my",
+			"count": 1
+		},
+		{
+			"word": "once",
+			"count": 1
+		},
+		{
+			"word": "pease",
+			"count": 1
+		},
+		{
+			"word": "she",
+			"count": 1
+		},
+		{
+			"word": "those",
+			"count": 1
+		},
+		{
+			"word": "ting",
+			"count": 1
+		},
+		{
+			"word": "whom",
+			"count": 1
+		},
+		{
+			"word": "willie",
+			"count": 1
+		}
+	]
+}

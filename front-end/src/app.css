@@ -1,4 +1,387 @@
-@import url('https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400..900;1,400..900&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/*
+ * The interface is deliberately achromatic. Every colour on the page comes from
+ * the sensorimotor data, so the annotation layer is the only thing that carries
+ * hue and the reader's eye has nowhere else to go.
+ */
+
+:root {
+	--paper: #edeee9;
+	--surface: #f7f8f4;
+	--sunken: #e3e5de;
+	--ink: #14201a;
+	--ink-2: #3c4a41;
+	--graphite: #6b776f;
+	--rule: #d2d6cc;
+	--rule-strong: #b3b9ac;
+	--shadow: 20 32 26;
+
+	/* Perceptual categories. Chosen for separability by lightness as well as hue,
+	   so they survive greyscale and the common colour-vision deficiencies; the
+	   underline texture carries the same distinction independently of colour. */
+	--s-visual: #2e6fb7;
+	--s-auditory: #0f7f74;
+	--s-haptic: #a86c13;
+	--s-gustatory: #c03a29;
+	--s-olfactory: #7a43a6;
+	--s-interoceptive: #4a7a2c;
+
+	/* Action categories. */
+	--s-hand_arm: #b8551f;
+	--s-head: #2f6fb5;
+	--s-mouth: #a52a6a;
+	--s-torso: #6355a6;
+	--s-foot_leg: #3a7a41;
+
+	--serif: 'Spectral', 'Iowan Old Style', Palatino, Georgia, serif;
+	--mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+	--rail-left: 16.5rem;
+	--rail-right: 15.5rem;
+	--measure: 34rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--paper: #131714;
+		--surface: #1b211c;
+		--sunken: #0d110e;
+		--ink: #e9ece3;
+		--ink-2: #c2c9bd;
+		--graphite: #8d988e;
+		--rule: #2b332c;
+		--rule-strong: #414b42;
+		--shadow: 0 0 0;
+
+		--s-visual: #74aae9;
+		--s-auditory: #4bc2b3;
+		--s-haptic: #ddab4b;
+		--s-gustatory: #f0785f;
+		--s-olfactory: #b78ce2;
+		--s-interoceptive: #91c164;
+
+		--s-hand_arm: #ef9163;
+		--s-head: #76abe8;
+		--s-mouth: #e57bb2;
+		--s-torso: #a396e8;
+		--s-foot_leg: #79bd80;
+	}
+}
+
+:root[data-theme='dark'] {
+	--paper: #131714;
+	--surface: #1b211c;
+	--sunken: #0d110e;
+	--ink: #e9ece3;
+	--ink-2: #c2c9bd;
+	--graphite: #8d988e;
+	--rule: #2b332c;
+	--rule-strong: #414b42;
+	--shadow: 0 0 0;
+
+	--s-visual: #74aae9;
+	--s-auditory: #4bc2b3;
+	--s-haptic: #ddab4b;
+	--s-gustatory: #f0785f;
+	--s-olfactory: #b78ce2;
+	--s-interoceptive: #91c164;
+
+	--s-hand_arm: #ef9163;
+	--s-head: #76abe8;
+	--s-mouth: #e57bb2;
+	--s-torso: #a396e8;
+	--s-foot_leg: #79bd80;
+}
+
+/* ------------------------------------------------------------------ base */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	background: var(--paper);
+	color-scheme: light dark;
+}
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--serif);
+	font-size: 17px;
+	line-height: 1.6;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+a {
+	color: inherit;
+	text-decoration-color: var(--rule-strong);
+	text-underline-offset: 2px;
+}
+
+a:hover {
+	text-decoration-color: currentColor;
+}
+
+:focus-visible {
+	outline: 2px solid var(--ink);
+	outline-offset: 2px;
+	border-radius: 1px;
+}
+
+button {
+	font: inherit;
+	color: inherit;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Small caps labels for the apparatus: controls, legends, counts, metadata. */
+.label {
+	font-family: var(--mono);
+	font-size: 0.66rem;
+	font-weight: 500;
+	letter-spacing: 0.13em;
+	text-transform: uppercase;
+	color: var(--graphite);
+}
+
+.numeric {
+	font-family: var(--mono);
+	font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- annotation marks */
+
+/*
+ * A mark's entire appearance is derived here from four attributes the build step
+ * baked into the HTML: the two dominance categories and the two intensity bands.
+ * Switching scheme, dimming, hiding a category or turning annotation off changes
+ * one attribute on the container — the browser restyles, nothing re-renders.
+ */
+
+.reader {
+	--intensity: 1;
+}
+
+/*
+ * The six textures have to be declared on the marks themselves, not on an
+ * ancestor: a var() inside a custom property is resolved when that property is
+ * computed on the element declaring it, so a gradient referring to --mark is
+ * only valid where --mark exists. Declared higher up it would compute to
+ * guaranteed-invalid and inherit down as nothing at all.
+ */
+.w,
+.swatch {
+	--tex-solid: linear-gradient(var(--mark), var(--mark));
+	--tex-double: linear-gradient(
+		to bottom,
+		var(--mark) 0 0.05em,
+		transparent 0.05em 0.14em,
+		var(--mark) 0.14em 0.19em
+	);
+	--tex-dotted: repeating-linear-gradient(to right, var(--mark) 0 0.09em, transparent 0.09em 0.2em);
+	--tex-dashed: repeating-linear-gradient(
+		to right,
+		var(--mark) 0 0.34em,
+		transparent 0.34em 0.54em
+	);
+	--tex-dotdash: repeating-linear-gradient(
+		to right,
+		var(--mark) 0 0.36em,
+		transparent 0.36em 0.5em,
+		var(--mark) 0.5em 0.59em,
+		transparent 0.59em 0.73em
+	);
+	--tex-hatch: repeating-linear-gradient(58deg, var(--mark) 0 0.055em, transparent 0.055em 0.15em);
+}
+
+.w {
+	--c: var(--graphite);
+	--w: 0.5;
+	--tex: var(--tex-solid);
+	--tex-size: 100% 0.1em;
+	--strength: clamp(0.12, calc(var(--w) * var(--intensity)), 1);
+	--mark: color-mix(in oklab, var(--c) calc(var(--strength) * 100%), transparent);
+
+	background-image: var(--tex);
+	background-repeat: repeat-x;
+	background-position: 0 100%;
+	background-size: var(--tex-size);
+	padding-bottom: 0.16em;
+	cursor: pointer;
+}
+
+.w:hover {
+	--strength: 1;
+	background-color: color-mix(in oklab, var(--c) 12%, transparent);
+}
+
+/* Every other occurrence of the word currently open in the inspector. */
+.w.is-selected {
+	--strength: 1;
+	background-color: color-mix(in oklab, var(--c) 18%, transparent);
+	box-shadow: 0 0 0 2px color-mix(in oklab, var(--c) 30%, transparent);
+}
+
+/* -- intensity bands -- */
+
+.reader[data-scheme='perceptual'] .w[data-pl='0'],
+.reader[data-scheme='action'] .w[data-al='0'] {
+	--w: 0.3;
+}
+.reader[data-scheme='perceptual'] .w[data-pl='1'],
+.reader[data-scheme='action'] .w[data-al='1'] {
+	--w: 0.45;
+}
+.reader[data-scheme='perceptual'] .w[data-pl='2'],
+.reader[data-scheme='action'] .w[data-al='2'] {
+	--w: 0.6;
+}
+.reader[data-scheme='perceptual'] .w[data-pl='3'],
+.reader[data-scheme='action'] .w[data-al='3'] {
+	--w: 0.78;
+}
+.reader[data-scheme='perceptual'] .w[data-pl='4'],
+.reader[data-scheme='action'] .w[data-al='4'] {
+	--w: 1;
+}
+
+/* -- perceptual categories -- */
+
+.reader[data-scheme='perceptual'] .w[data-p='visual'],
+.swatch[data-cat='visual'] {
+	--c: var(--s-visual);
+	--tex: var(--tex-solid);
+	--tex-size: 100% 0.1em;
+}
+.reader[data-scheme='perceptual'] .w[data-p='interoceptive'],
+.swatch[data-cat='interoceptive'] {
+	--c: var(--s-interoceptive);
+	--tex: var(--tex-hatch);
+	--tex-size: 100% 0.17em;
+}
+.reader[data-scheme='perceptual'] .w[data-p='auditory'],
+.swatch[data-cat='auditory'] {
+	--c: var(--s-auditory);
+	--tex: var(--tex-double);
+	--tex-size: 100% 0.19em;
+}
+.reader[data-scheme='perceptual'] .w[data-p='gustatory'],
+.swatch[data-cat='gustatory'] {
+	--c: var(--s-gustatory);
+	--tex: var(--tex-dashed);
+	--tex-size: 100% 0.1em;
+}
+.reader[data-scheme='perceptual'] .w[data-p='haptic'],
+.swatch[data-cat='haptic'] {
+	--c: var(--s-haptic);
+	--tex: var(--tex-dotted);
+	--tex-size: 100% 0.1em;
+}
+.reader[data-scheme='perceptual'] .w[data-p='olfactory'],
+.swatch[data-cat='olfactory'] {
+	--c: var(--s-olfactory);
+	--tex: var(--tex-dotdash);
+	--tex-size: 100% 0.1em;
+}
+
+/* -- action categories -- */
+
+.reader[data-scheme='action'] .w[data-a='hand_arm'],
+.swatch[data-cat='hand_arm'] {
+	--c: var(--s-hand_arm);
+	--tex: var(--tex-solid);
+	--tex-size: 100% 0.1em;
+}
+.reader[data-scheme='action'] .w[data-a='head'],
+.swatch[data-cat='head'] {
+	--c: var(--s-head);
+	--tex: var(--tex-double);
+	--tex-size: 100% 0.19em;
+}
+.reader[data-scheme='action'] .w[data-a='mouth'],
+.swatch[data-cat='mouth'] {
+	--c: var(--s-mouth);
+	--tex: var(--tex-dashed);
+	--tex-size: 100% 0.1em;
+}
+.reader[data-scheme='action'] .w[data-a='torso'],
+.swatch[data-cat='torso'] {
+	--c: var(--s-torso);
+	--tex: var(--tex-hatch);
+	--tex-size: 100% 0.17em;
+}
+.reader[data-scheme='action'] .w[data-a='foot_leg'],
+.swatch[data-cat='foot_leg'] {
+	--c: var(--s-foot_leg);
+	--tex: var(--tex-dotted);
+	--tex-size: 100% 0.1em;
+}
+
+/* -- suppression -- */
+
+.reader[data-annotations='off'] .w {
+	background-image: none;
+	cursor: text;
+}
+
+.reader[data-scheme='perceptual'].off-visual .w[data-p='visual'],
+.reader[data-scheme='perceptual'].off-auditory .w[data-p='auditory'],
+.reader[data-scheme='perceptual'].off-haptic .w[data-p='haptic'],
+.reader[data-scheme='perceptual'].off-gustatory .w[data-p='gustatory'],
+.reader[data-scheme='perceptual'].off-olfactory .w[data-p='olfactory'],
+.reader[data-scheme='perceptual'].off-interoceptive .w[data-p='interoceptive'],
+.reader[data-scheme='action'].off-hand_arm .w[data-a='hand_arm'],
+.reader[data-scheme='action'].off-head .w[data-a='head'],
+.reader[data-scheme='action'].off-mouth .w[data-a='mouth'],
+.reader[data-scheme='action'].off-torso .w[data-a='torso'],
+.reader[data-scheme='action'].off-foot_leg .w[data-a='foot_leg'] {
+	background-image: none;
+}
+
+/* A swatch renders a category's texture on its own, for legends. */
+.swatch {
+	--w: 1;
+	--intensity: 1;
+	--strength: 1;
+	--mark: var(--c);
+	display: block;
+	width: 1.5rem;
+	height: 0.6rem;
+	background-image: var(--tex);
+	background-repeat: repeat-x;
+	background-position: 0 100%;
+	background-size: var(--tex-size);
+	flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

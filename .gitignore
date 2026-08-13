@@ -1,7 +1,15 @@
-### Svelte template
-# gitignore template for the SvelteKit, frontend web component framework
-# website: https://kit.svelte.dev/
-
+# Build output and dependencies
+node_modules/
 .svelte-kit/
-package
+front-end/build/
 
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Python (data pipeline)
+__pycache__/
+.ipynb_checkpoints/
+.venv/
