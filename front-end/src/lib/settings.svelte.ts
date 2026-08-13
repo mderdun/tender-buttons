@@ -16,7 +16,6 @@ const STORAGE_KEY = 'tender-buttons:settings';
 interface Stored {
 	annotations?: boolean;
 	scheme?: SchemeId;
-	intensity?: number;
 	hidden?: Record<string, string[]>;
 }
 
@@ -34,8 +33,6 @@ const saved = restore();
 class Settings {
 	annotations = $state(saved.annotations ?? true);
 	scheme = $state<SchemeId>(saved.scheme === 'action' ? 'action' : 'perceptual');
-	/** Multiplier applied to a word's exclusivity band. 1 is the designed default. */
-	intensity = $state(clampIntensity(saved.intensity));
 	/** Categories the reader has switched off, keyed by scheme. */
 	hidden: Record<SchemeId, SvelteSet<string>> = {
 		perceptual: new SvelteSet(saved.hidden?.perceptual ?? []),
@@ -79,7 +76,6 @@ class Settings {
 		const payload: Stored = {
 			annotations: this.annotations,
 			scheme: this.scheme,
-			intensity: this.intensity,
 			hidden: {
 				perceptual: [...this.hidden.perceptual],
 				action: [...this.hidden.action]
@@ -92,11 +88,6 @@ class Settings {
 			// convenience, so losing them is not worth surfacing.
 		}
 	}
-}
-
-function clampIntensity(value: number | undefined): number {
-	if (typeof value !== 'number' || Number.isNaN(value)) return 1;
-	return Math.min(2, Math.max(0.4, value));
 }
 
 export const settings = new Settings();

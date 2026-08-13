@@ -26,18 +26,6 @@
 				</button>
 			{/each}
 		</div>
-
-		<label class="slider">
-			<span class="label">Strength</span>
-			<input
-				type="range"
-				min="0.4"
-				max="2"
-				step="0.05"
-				bind:value={settings.intensity}
-				aria-valuetext="{Math.round(settings.intensity * 100)}%"
-			/>
-		</label>
 	</fieldset>
 </div>
 
@@ -149,19 +137,5 @@
 	.seg:not(.on):hover {
 		background: var(--sunken);
 		color: var(--ink);
-	}
-
-	/* -- slider -- */
-
-	.slider {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-	}
-
-	input[type='range'] {
-		width: 100%;
-		accent-color: var(--ink);
-		cursor: pointer;
 	}
 </style>
