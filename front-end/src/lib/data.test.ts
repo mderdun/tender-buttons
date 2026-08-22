@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { normalise, PERCEPTUAL, ACTION, BANDS } from '../../scripts/build-data.mjs';
 import { SCHEMES } from './senses';
-import corpus from './data/portraits.json';
+import packed from './data/portraits.json';
 import stats from './data/stats.json';
-import type { Corpus } from './types';
+import { decodeCorpus, type PackedCorpus } from './corpus';
 import { isWord } from './types';
 
-const { sections } = corpus as Corpus;
+const { sections } = decodeCorpus(packed as PackedCorpus);
 const words = sections.flatMap((section) =>
 	section.portraits.flatMap((portrait) =>
 		[portrait.title, ...portrait.paragraphs].flat().filter(isWord)

@@ -36,6 +36,36 @@ export const PERCEPTUAL = [
 /** The five action categories. */
 export const ACTION = ['hand_arm', 'mouth', 'head', 'foot_leg', 'torso'];
 
+/**
+ * The baseline the edition is read against: how the six perceptual categories
+ * are distributed across the whole Lancaster set, and the average exclusivity
+ * of each.
+ *
+ * These are the only numbers here that are not computed from ../data. The full
+ * 40,000-word norm set is not committed to this repository — the sibling CSVs
+ * are the Tender Buttons subset only — so the baseline is carried as a cited
+ * constant, taken from Tables 1 and 2 of the accompanying essay, which derived
+ * it from the published norms.
+ *
+ * `share` is the percentage of the 39,407 rated words the category dominates.
+ * `exclusivity` is that category's average exclusivity, 0-1, on the same scale
+ * the site uses everywhere else.
+ *
+ * Source: Dermot Lynott and others, 'The Lancaster Sensorimotor Norms',
+ * Behavior Research Methods, 52.3 (2020), 1271-91.
+ */
+export const LANCASTER = {
+	total: 39407,
+	categories: {
+		visual: { n: 29552, share: 75.0, exclusivity: 0.448 },
+		interoceptive: { n: 3546, share: 9.0, exclusivity: 0.368 },
+		auditory: { n: 4528, share: 11.5, exclusivity: 0.442 },
+		gustatory: { n: 890, share: 2.3, exclusivity: 0.295 },
+		haptic: { n: 675, share: 1.7, exclusivity: 0.374 },
+		olfactory: { n: 216, share: 0.5, exclusivity: 0.407 }
+	}
+};
+
 /** The eleven raw dimensions, for the word inspector. */
 const DIMENSIONS = [
 	['Auditory.mean', 'auditory'],
@@ -247,6 +277,31 @@ function paragraphsOf(portrait) {
 		.filter((paragraph) => /\p{L}/u.test(paragraph));
 }
 
+/**
+ * Mean perceptual exclusivity across every annotated word in a portrait.
+ *
+ * Exclusivity measures how far one category leads the other five, so a high
+ * mean marks a portrait that describes its subject through a single sense, and
+ * a low mean one that reaches for several at once. This is the essay's central
+ * per-portrait measure, and it has to be taken before bandify() quantises the
+ * raw floats away.
+ *
+ * @param {{ title: any[], paragraphs: any[][] }} portrait
+ * @returns {number | null} 0-1, or null for a portrait with no rated words
+ */
+function exclusivityOf(portrait) {
+	let sum = 0;
+	let count = 0;
+	for (const segments of [portrait.title, ...portrait.paragraphs]) {
+		for (const s of segments) {
+			if (s.w === undefined) continue;
+			sum += s.pe;
+			count += 1;
+		}
+	}
+	return count ? sum / count : null;
+}
+
 function main() {
 	const listRows = csvParse(readFileSync(resolve(DATA_DIR, 'list.csv'), 'utf-8'));
 	const normRows = csvParse(readFileSync(resolve(DATA_DIR, 'words_with_sm_norms.csv'), 'utf-8'));
@@ -297,23 +352,101 @@ function main() {
 		});
 	});
 
-	const bands = bandify(allSegments);
+	// Everything that reads raw exclusivity has to happen here, while the
+	// segments still carry `pe`/`ae`; bandify() replaces them with band indices.
 
+	/** @type {Record<string, number>} */
+	const perceptualTokens = {};
+	/** @type {Record<string, number>} */
+	const actionTokens = {};
+	/** @type {Record<string, { sum: number, n: number }>} */
+	const exclusivityByCategory = {};
+
+	for (const segments of allSegments) {
+		for (const s of segments) {
+			if (s.w === undefined) continue;
+			perceptualTokens[s.p] = (perceptualTokens[s.p] ?? 0) + 1;
+			actionTokens[s.a] = (actionTokens[s.a] ?? 0) + 1;
+		}
+	}
+
+	// Per-category average exclusivity is a property of the vocabulary, not of
+	// the running text, so it is taken over types to stay comparable with the
+	// Lancaster averages in LANCASTER.
 	for (const entry of norms.values()) {
 		perceptualCounts[entry.perceptual] = (perceptualCounts[entry.perceptual] ?? 0) + 1;
 		actionCounts[entry.action] = (actionCounts[entry.action] ?? 0) + 1;
+		const bucket = (exclusivityByCategory[entry.perceptual] ??= { sum: 0, n: 0 });
+		bucket.sum += entry.perceptualExclusivity;
+		bucket.n += 1;
 	}
+
+	for (const section of sections.values()) {
+		for (const portrait of section.portraits) {
+			portrait.exclusivity = round3(exclusivityOf(portrait) ?? 0);
+		}
+		const rated = section.portraits.filter((/** @type {any} */ p) => p.exclusivity > 0);
+		section.exclusivity = rated.length
+			? round3(
+					rated.reduce((/** @type {number} */ a, /** @type {any} */ p) => a + p.exclusivity, 0) /
+						rated.length
+				)
+			: 0;
+	}
+
+	const ranked = [...sections.values()]
+		.flatMap((/** @type {any} */ s) =>
+			s.portraits
+				.filter((/** @type {any} */ p) => p.exclusivity > 0)
+				.map((/** @type {any} */ p) => ({
+					id: p.id,
+					title: p.titleText,
+					repeat: p.repeat,
+					section: s.id,
+					sectionTitle: s.title,
+					exclusivity: p.exclusivity
+				}))
+		)
+		.sort((a, b) => b.exclusivity - a.exclusivity);
+
+	const bands = bandify(allSegments);
 
 	const unmatched = [...tally.unmatched.entries()]
 		.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
 		.map(([word, count]) => ({ word, count }));
+
+	// The comparison the edition exists to make: Stein's rated vocabulary set
+	// against the whole Lancaster set, category by category. Shares are over
+	// types, not tokens, so both columns count the same kind of thing.
+	const comparison = PERCEPTUAL.map((id) => {
+		const n = perceptualCounts[id] ?? 0;
+		const baseline =
+			/** @type {Record<string, { n: number, share: number, exclusivity: number }>} */ (
+				LANCASTER.categories
+			)[id];
+		const share = (n / norms.size) * 100;
+		const bucket = exclusivityByCategory[id];
+		return {
+			id,
+			stein: {
+				n,
+				share: round3(share),
+				exclusivity: bucket ? round3(bucket.sum / bucket.n) : 0
+			},
+			lancaster: { n: baseline.n, share: baseline.share, exclusivity: baseline.exclusivity },
+			// Signed difference in percentage points. The finding is that these
+			// are small: Stein's sensory vocabulary is close to ordinary English.
+			shareDelta: round3(share - baseline.share)
+		};
+	}).sort((a, b) => b.stein.n - a.stein.n);
 
 	const stats = {
 		portraits: listRows.length,
 		sections: [...sections.values()].map((s) => ({
 			id: s.id,
 			title: s.title,
-			portraits: s.portraits.length
+			portraits: s.portraits.length,
+			exclusivity: s.exclusivity
 		})),
 		tokens: tally.total,
 		matched: tally.matched,
@@ -322,6 +455,18 @@ function main() {
 		bands,
 		perceptualCounts,
 		actionCounts,
+		perceptualTokens,
+		actionTokens,
+		comparison,
+		lancasterTotal: LANCASTER.total,
+		// Largest single divergence from the baseline, in percentage points. The
+		// colophon quotes this, so it can never drift from the table above it.
+		maxShareDelta: round3(Math.max(...comparison.map((c) => Math.abs(c.shareDelta)))),
+		exclusivityMean: round3(
+			[...norms.values()].reduce((a, e) => a + e.perceptualExclusivity, 0) / norms.size
+		),
+		mostUnidimensional: ranked.slice(0, 3),
+		mostMultidimensional: ranked.slice(-3).reverse(),
 		droppedRows: dropped,
 		unmatchedTypes: unmatched.length,
 		unmatched
@@ -354,10 +499,45 @@ function main() {
 		];
 	}
 
+	// portraits.json is packed the same way norms.json is, and for the same
+	// reason. The page is prerendered, so the corpus arrives once as HTML; but
+	// hydration needs the identical data client-side, which shipped it a second
+	// time as a 417 kB JS chunk — 84% of all client JavaScript, for a subtree
+	// that never re-renders. Interning the category names and dropping the key
+	// names from every segment roughly halves that second copy. decodeCorpus()
+	// in src/lib/corpus.ts is the dozen lines that undo it.
+	/** @type {string[]} */
+	const segCategories = [];
+	/** @param {string} name */
+	const internCategory = (name) => {
+		const index = segCategories.indexOf(name);
+		return index === -1 ? segCategories.push(name) - 1 : index;
+	};
+	/** @param {any[]} segments */
+	const packSegments = (segments) =>
+		segments.map((s) =>
+			s.w === undefined ? s.t : [s.w, internCategory(s.p), internCategory(s.a), s.pl, s.al]
+		);
+
+	const packedSections = [...sections.values()].map((section) => ({
+		id: section.id,
+		title: section.title,
+		exclusivity: section.exclusivity,
+		portraits: section.portraits.map((/** @type {any} */ p) => ({
+			id: p.id,
+			n: p.n,
+			titleText: p.titleText,
+			repeat: p.repeat,
+			exclusivity: p.exclusivity,
+			title: packSegments(p.title),
+			paragraphs: p.paragraphs.map(packSegments)
+		}))
+	}));
+
 	mkdirSync(OUT_DIR, { recursive: true });
 	writeFileSync(
 		resolve(OUT_DIR, 'portraits.json'),
-		JSON.stringify({ sections: [...sections.values()] })
+		JSON.stringify({ categories: segCategories, sections: packedSections })
 	);
 	writeFileSync(
 		resolve(OUT_DIR, 'norms.json'),

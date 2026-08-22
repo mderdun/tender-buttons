@@ -1,6 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400..900;1,400..900&display=swap');
-
 /*
+ * The webfonts are linked from app.html, not imported here. An @import cannot be
+ * discovered until this stylesheet has downloaded and parsed, which put the font
+ * request two round trips behind the document; the <link> starts it with the
+ * rest of the head.
+ *
  * Colours, type and rules follow the 1914 edition as the project originally set
  * it: the dark forest green of the cover, the olive of the button, and cream
  * paper. Interface colour is kept to those three so the sensorimotor hues stay
@@ -13,11 +16,27 @@
 	--sunken: #e2dfd2;
 	--ink: #182d1a;
 	--ink-2: #3a4c3c;
-	--graphite: #6d7a6c;
+	/* Darkened from #6d7a6c, which was 3.88:1 on paper. Every apparatus label,
+	   contents entry and legend row is set in this, so it has to clear 4.5:1
+	   against both --paper (4.62) and --surface (4.93). */
+	--graphite: #616e60;
 	--rule: #cdc9b8;
 	--rule-strong: #a9a894;
-	--olive: #848556;
+	/* Lightened from #848556 so the ink lettering inside the button clears 4.5:1
+	   (4.72). The 20px forest rim keeps the disc separated from the paper, so the
+	   face never has to carry that edge itself. */
+	--olive: #949563;
 	--shadow: 24 45 26;
+
+	/*
+	 * The cover, held outside the theme in both directions. These are the colours
+	 * of a printed object being reproduced, not roles in the interface, so they
+	 * do not swap in dark mode — where --ink is cream, and the strip and the rim
+	 * inverted into a pale band across the top of the page.
+	 */
+	--cover: #182d1a;
+	--cover-face: #949563;
+	--cover-ink: #f0eee5;
 
 	/* Perceptual categories. Chosen for separability by lightness as well as hue,
 	   so they survive greyscale and the common colour-vision deficiencies; the
@@ -29,14 +48,23 @@
 	--s-olfactory: #7a43a6;
 	--s-interoceptive: #4a7a2c;
 
-	/* Action categories. */
-	--s-hand_arm: #b8551f;
-	--s-head: #2f6fb5;
+	/* Action categories.
+	   Head was #2f6fb5, one hex step from --s-visual's #2e6fb7. Since sight
+	   dominates 71.8% of the perceptual marking and head 64.2% of the action
+	   marking, the two schemes rendered as the same blue page and switching
+	   between them looked like nothing had happened. Head is now oxblood, so the
+	   switch reads as the change of reading it is. */
+	--s-hand_arm: #8a6a17;
+	--s-head: #9c3327;
 	--s-mouth: #a52a6a;
 	--s-torso: #6355a6;
 	--s-foot_leg: #3a7a41;
 
 	--serif: 'Vollkorn', 'Iowan Old Style', Palatino, Georgia, serif;
+	/* The apparatus voice. Small caps rather than a second family: an edition
+	   sets its apparatus in a companion cut of the text face, not in a
+	   contrasting one, and Vollkorn SC is that cut. */
+	--sc: 'Vollkorn SC', 'Vollkorn', 'Iowan Old Style', Palatino, Georgia, serif;
 
 	--rail-left: 16.5rem;
 	--rail-right: 15.5rem;
@@ -63,8 +91,8 @@
 		--s-olfactory: #b78ce2;
 		--s-interoceptive: #91c164;
 
-		--s-hand_arm: #ef9163;
-		--s-head: #76abe8;
+		--s-hand_arm: #d9b04e;
+		--s-head: #ee7a63;
 		--s-mouth: #e57bb2;
 		--s-torso: #a396e8;
 		--s-foot_leg: #79bd80;
@@ -90,8 +118,8 @@
 	--s-olfactory: #b78ce2;
 	--s-interoceptive: #91c164;
 
-	--s-hand_arm: #ef9163;
-	--s-head: #76abe8;
+	--s-hand_arm: #d9b04e;
+	--s-head: #ee7a63;
 	--s-mouth: #e57bb2;
 	--s-torso: #a396e8;
 	--s-foot_leg: #79bd80;
@@ -155,12 +183,20 @@ button {
 	white-space: nowrap;
 }
 
-/* Letterspaced caps for the apparatus, set in the same face as the text. */
+/*
+ * The apparatus voice: small caps in the companion cut of the text face, the way
+ * an edition sets a running head or the head of an apparatus.
+ *
+ * Was 11.5px letterspaced uppercase in the text face — below the 11px floor for
+ * functional text once rendered, and indistinguishable from the body. Vollkorn
+ * SC renders lowercase as small caps, so the markup keeps normal case and the
+ * face does the work; no text-transform.
+ */
 .label {
-	font-size: 0.72rem;
+	font-family: var(--sc);
+	font-size: 0.82rem;
 	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
+	letter-spacing: 0.05em;
 	color: var(--graphite);
 }
 
@@ -190,19 +226,18 @@ button {
 
 /*
  * A mark's entire appearance is derived here from four attributes the build step
- * baked into the HTML: the two dominance categories and the two intensity bands.
- * Switching scheme, dimming, hiding a category or turning annotation off changes
+ * baked into the HTML: the two dominance categories and the two exclusivity
+ * bands. Switching scheme, hiding a category or turning annotation off changes
  * one attribute on the container — the browser restyles, nothing re-renders.
+ *
+ * Exclusivity is carried by the thickness of the rule, not by its opacity.
+ * Opacity was tried first, because the essay's own figures set opacity
+ * proportional to exclusivity, but a gradient wide enough to read takes the
+ * faintest band down to 1.97:1 against the paper — below the 3:1 floor for a
+ * graphical object that carries meaning. Thickness holds every band at full
+ * colour, stays legible in a hairline rule, and is what a printed apparatus
+ * does anyway: a heavier rule is a stronger reading.
  */
-
-.reader {
-	/* Fixed at the top of the range the strength control used to offer. Below
-	   this the six hues are not reliably told apart in running text, and telling
-	   them apart is the whole point. The per-word exclusivity band still sets the
-	   weight, but at this multiplier every band above the second clamps to full:
-	   distinguishing the colours wins over the finer gradient. */
-	--intensity: 2;
-}
 
 /*
  * The six textures have to be declared on the marks themselves, not on an
@@ -210,15 +245,19 @@ button {
  * computed on the element declaring it, so a gradient referring to --mark is
  * only valid where --mark exists. Declared higher up it would compute to
  * guaranteed-invalid and inherit down as nothing at all.
+ *
+ * The vertical textures are expressed in percentages of the painted box so they
+ * scale with --tex-h; the horizontal ones keep em stops, because a dash or a
+ * hatch should get heavier without getting coarser.
  */
 .w,
 .swatch {
 	--tex-solid: linear-gradient(var(--mark), var(--mark));
 	--tex-double: linear-gradient(
 		to bottom,
-		var(--mark) 0 0.05em,
-		transparent 0.05em 0.14em,
-		var(--mark) 0.14em 0.19em
+		var(--mark) 0 26%,
+		transparent 26% 74%,
+		var(--mark) 74% 100%
 	);
 	--tex-dotted: repeating-linear-gradient(to right, var(--mark) 0 0.09em, transparent 0.09em 0.2em);
 	--tex-dashed: repeating-linear-gradient(
@@ -234,57 +273,63 @@ button {
 		transparent 0.59em 0.73em
 	);
 	--tex-hatch: repeating-linear-gradient(58deg, var(--mark) 0 0.055em, transparent 0.055em 0.15em);
+
+	/* One base thickness for every category. The textures differ in pattern, not
+	   in weight, so that weight is free to mean exclusivity and nothing else. */
+	--tex-h: 0.115em;
 }
 
 .w {
 	--c: var(--graphite);
-	--w: 0.5;
+	/* Multiplier on --tex-h; the exclusivity bands below set it. */
+	--weight: 1;
 	--tex: var(--tex-solid);
-	--tex-size: 100% 0.1em;
-	--strength: clamp(0.12, calc(var(--w) * var(--intensity)), 1);
-	--mark: color-mix(in oklab, var(--c) calc(var(--strength) * 100%), transparent);
+	--mark: var(--c);
 
 	background-image: var(--tex);
 	background-repeat: repeat-x;
 	background-position: 0 100%;
-	background-size: var(--tex-size);
-	padding-bottom: 0.16em;
+	background-size: 100% calc(var(--tex-h) * var(--weight));
+	/* Clears the heaviest rule the top band can produce (0.115em x 1.55). */
+	padding-bottom: 0.24em;
 	cursor: pointer;
 }
 
 .w:hover {
-	--strength: 1;
 	background-color: color-mix(in oklab, var(--c) 12%, transparent);
 }
 
 /* Every other occurrence of the word currently open in the inspector. */
 .w.is-selected {
-	--strength: 1;
 	background-color: color-mix(in oklab, var(--c) 18%, transparent);
 	box-shadow: 0 0 0 2px color-mix(in oklab, var(--c) 30%, transparent);
 }
 
-/* -- intensity bands -- */
+/* -- exclusivity bands --
+
+   Five near-equal quintiles of the corpus (1315/1329/1305/1346/1329 words), so
+   each step carries about a fifth of what a reader actually sees. Every band
+   renders at full colour; only the thickness changes. */
 
 .reader[data-scheme='perceptual'] .w[data-pl='0'],
 .reader[data-scheme='action'] .w[data-al='0'] {
-	--w: 0.3;
+	--weight: 0.6;
 }
 .reader[data-scheme='perceptual'] .w[data-pl='1'],
 .reader[data-scheme='action'] .w[data-al='1'] {
-	--w: 0.45;
+	--weight: 0.8;
 }
 .reader[data-scheme='perceptual'] .w[data-pl='2'],
 .reader[data-scheme='action'] .w[data-al='2'] {
-	--w: 0.6;
+	--weight: 1;
 }
 .reader[data-scheme='perceptual'] .w[data-pl='3'],
 .reader[data-scheme='action'] .w[data-al='3'] {
-	--w: 0.78;
+	--weight: 1.25;
 }
 .reader[data-scheme='perceptual'] .w[data-pl='4'],
 .reader[data-scheme='action'] .w[data-al='4'] {
-	--w: 1;
+	--weight: 1.55;
 }
 
 /* -- perceptual categories -- */
@@ -293,37 +338,31 @@ button {
 .swatch[data-cat='visual'] {
 	--c: var(--s-visual);
 	--tex: var(--tex-solid);
-	--tex-size: 100% 0.1em;
 }
 .reader[data-scheme='perceptual'] .w[data-p='interoceptive'],
 .swatch[data-cat='interoceptive'] {
 	--c: var(--s-interoceptive);
 	--tex: var(--tex-hatch);
-	--tex-size: 100% 0.17em;
 }
 .reader[data-scheme='perceptual'] .w[data-p='auditory'],
 .swatch[data-cat='auditory'] {
 	--c: var(--s-auditory);
 	--tex: var(--tex-double);
-	--tex-size: 100% 0.19em;
 }
 .reader[data-scheme='perceptual'] .w[data-p='gustatory'],
 .swatch[data-cat='gustatory'] {
 	--c: var(--s-gustatory);
 	--tex: var(--tex-dashed);
-	--tex-size: 100% 0.1em;
 }
 .reader[data-scheme='perceptual'] .w[data-p='haptic'],
 .swatch[data-cat='haptic'] {
 	--c: var(--s-haptic);
 	--tex: var(--tex-dotted);
-	--tex-size: 100% 0.1em;
 }
 .reader[data-scheme='perceptual'] .w[data-p='olfactory'],
 .swatch[data-cat='olfactory'] {
 	--c: var(--s-olfactory);
 	--tex: var(--tex-dotdash);
-	--tex-size: 100% 0.1em;
 }
 
 /* -- action categories -- */
@@ -332,31 +371,26 @@ button {
 .swatch[data-cat='hand_arm'] {
 	--c: var(--s-hand_arm);
 	--tex: var(--tex-solid);
-	--tex-size: 100% 0.1em;
 }
 .reader[data-scheme='action'] .w[data-a='head'],
 .swatch[data-cat='head'] {
 	--c: var(--s-head);
 	--tex: var(--tex-double);
-	--tex-size: 100% 0.19em;
 }
 .reader[data-scheme='action'] .w[data-a='mouth'],
 .swatch[data-cat='mouth'] {
 	--c: var(--s-mouth);
 	--tex: var(--tex-dashed);
-	--tex-size: 100% 0.1em;
 }
 .reader[data-scheme='action'] .w[data-a='torso'],
 .swatch[data-cat='torso'] {
 	--c: var(--s-torso);
 	--tex: var(--tex-hatch);
-	--tex-size: 100% 0.17em;
 }
 .reader[data-scheme='action'] .w[data-a='foot_leg'],
 .swatch[data-cat='foot_leg'] {
 	--c: var(--s-foot_leg);
 	--tex: var(--tex-dotted);
-	--tex-size: 100% 0.1em;
 }
 
 /* -- suppression -- */
@@ -380,29 +414,44 @@ button {
 	background-image: none;
 }
 
-/* A swatch renders a category's texture on its own, for legends. */
+/* A swatch renders a category's texture on its own, for the key. Set at the
+   middle band so the specimen matches a typical mark in the text. */
 .swatch {
-	--w: 1;
-	--intensity: 1;
-	--strength: 1;
+	--weight: 1;
 	--mark: var(--c);
 	display: block;
-	width: 1.5rem;
+	width: 1.75rem;
 	height: 0.6rem;
 	background-image: var(--tex);
 	background-repeat: repeat-x;
 	background-position: 0 100%;
-	background-size: var(--tex-size);
+	background-size: 100% calc(var(--tex-h) * var(--weight));
 	flex: none;
 }
 
+/*
+ * Reduced motion.
+ *
+ * Not a blanket kill. Every transition on this page reports a state change the
+ * reader needs — the drawer arriving, a control taking effect — so each one is
+ * substituted rather than deleted: the movement goes, the change stays legible.
+ */
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
 	*::after {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
+	}
+
+	/* Colour and opacity changes are not vestibular triggers, so they stay —
+	   shortened, so feedback still reads as feedback rather than as a jump. */
+	*,
+	*::before,
+	*::after {
+		transition-property:
+			color, background-color, border-color, opacity, text-decoration-color, box-shadow !important;
+		transition-duration: 90ms !important;
 	}
 }

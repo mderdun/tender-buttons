@@ -3,139 +3,160 @@
 	import { SCHEME_LIST } from '$lib/senses';
 </script>
 
+<!--
+	The apparatus reads as a set of chosen readings rather than as a settings
+	panel: a line of alternatives with the current one taken. The controls are
+	real radios and a real checkbox under the styling, so arrow-key and space
+	behaviour, grouping and announcement all come from the platform.
+-->
 <div class="controls">
-	<div class="row">
-		<label class="switch">
+	<div class="line">
+		<span class="label">Text</span>
+		<label class="check">
 			<input type="checkbox" bind:checked={settings.annotations} />
-			<span class="track" aria-hidden="true"><span class="knob"></span></span>
-			<span class="label">Annotation</span>
+			<span class="box" aria-hidden="true"></span>
+			<span class="text">marked</span>
 		</label>
 	</div>
 
-	<fieldset disabled={!settings.annotations}>
-		<legend class="label">Colour by</legend>
-		<div class="segmented">
+	<fieldset class="line" disabled={!settings.annotations}>
+		<legend class="label">Reading</legend>
+		<div class="choices">
 			{#each SCHEME_LIST as scheme (scheme.id)}
-				<button
-					class="seg"
-					class:on={settings.scheme === scheme.id}
-					aria-pressed={settings.scheme === scheme.id}
-					onclick={() => (settings.scheme = scheme.id)}
-				>
-					{scheme.label}
-				</button>
+				<label class="choice" class:on={settings.scheme === scheme.id}>
+					<input
+						type="radio"
+						name="scheme"
+						value={scheme.id}
+						checked={settings.scheme === scheme.id}
+						onchange={() => (settings.scheme = scheme.id)}
+					/>
+					<span class="text">{scheme.label}</span>
+				</label>
 			{/each}
 		</div>
 	</fieldset>
+
+	<p class="gloss">
+		{#if !settings.annotations}
+			The text is unmarked. Every word is Stein's.
+		{:else}
+			{SCHEME_LIST.find((s) => s.id === settings.scheme)?.description}
+		{/if}
+	</p>
 </div>
 
 <style>
 	.controls {
 		display: flex;
 		flex-direction: column;
-		gap: 0.9rem;
+		gap: 0.55rem;
 	}
 
-	fieldset {
+	.line {
+		display: flex;
+		align-items: baseline;
+		gap: 0.7rem;
 		border: none;
 		margin: 0;
 		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
+		min-width: 0;
 	}
 
-	fieldset:disabled {
-		opacity: 0.4;
-	}
-
-	legend {
+	legend.label {
 		padding: 0;
-		margin-bottom: 0.4rem;
+		float: left;
 	}
 
-	.row {
+	.choices {
 		display: flex;
+		align-items: baseline;
+		gap: 0.7rem;
+		min-width: 0;
 	}
 
-	/* -- toggle -- */
+	fieldset:disabled .choices {
+		opacity: 0.45;
+	}
 
-	.switch {
+	/* -- the taken reading -- */
+
+	.choice,
+	.check {
 		display: flex;
-		align-items: center;
-		gap: 0.55rem;
+		align-items: baseline;
+		gap: 0.4rem;
 		cursor: pointer;
+		padding: 0.28rem 0;
+		font-size: 0.92rem;
+		color: var(--graphite);
 	}
 
-	.switch input {
+	.choice input,
+	.check input {
 		position: absolute;
+		width: 1px;
+		height: 1px;
 		opacity: 0;
-		width: 0;
-		height: 0;
+		margin: 0;
 	}
 
-	.track {
-		width: 2.1rem;
-		height: 1.1rem;
+	.choice:hover .text,
+	.check:hover .text {
+		color: var(--ink);
+	}
+
+	/* The chosen alternative is the one set in ink and ruled under, the way a
+	   preferred reading is marked in an apparatus. */
+	.choice.on .text {
+		color: var(--ink);
+		font-weight: 600;
+		border-bottom: 2px solid var(--ink);
+	}
+
+	.choice input:focus-visible ~ .text,
+	.check input:focus-visible ~ .box {
+		outline: 2px solid var(--ink);
+		outline-offset: 3px;
+	}
+
+	.text {
+		transition: color 160ms ease;
+	}
+
+	/* A ruled box that takes a mark, not a switch. */
+	.box {
+		position: relative;
+		top: 0.08em;
+		width: 0.78rem;
+		height: 0.78rem;
 		border: 1px solid var(--rule-strong);
-		background: var(--sunken);
-		display: flex;
-		align-items: center;
-		padding: 2px;
-		transition: background 140ms ease;
+		background: var(--surface);
+		flex: none;
 	}
 
-	.knob {
-		width: 0.72rem;
-		height: 0.72rem;
-		background: var(--graphite);
-		transition:
-			transform 140ms ease,
-			background 140ms ease;
-	}
-
-	.switch input:checked + .track {
+	.check input:checked ~ .box {
 		background: var(--ink);
 		border-color: var(--ink);
 	}
 
-	.switch input:checked + .track .knob {
-		transform: translateX(0.92rem);
+	.check input:checked ~ .box::after {
+		content: '';
+		position: absolute;
+		inset: 0.16rem;
 		background: var(--paper);
 	}
 
-	.switch input:focus-visible + .track {
-		outline: 2px solid var(--ink);
-		outline-offset: 2px;
-	}
-
-	/* -- segmented control -- */
-
-	.segmented {
-		display: flex;
-		border: 1px solid var(--rule-strong);
-	}
-
-	.seg {
-		flex: 1;
-		padding: 0.36rem 0.5rem;
-		font-family: var(--mono);
-		font-size: 0.72rem;
-		letter-spacing: 0.06em;
-		color: var(--graphite);
-	}
-
-	.seg + .seg {
-		border-left: 1px solid var(--rule-strong);
-	}
-
-	.seg.on {
-		background: var(--ink);
-		color: var(--paper);
-	}
-
-	.seg:not(.on):hover {
-		background: var(--sunken);
+	.check input:checked ~ .text {
 		color: var(--ink);
+	}
+
+	.gloss {
+		margin: 0;
+		font-size: 0.8rem;
+		font-style: italic;
+		line-height: 1.5;
+		color: var(--graphite);
+		text-wrap: pretty;
 	}
 </style>

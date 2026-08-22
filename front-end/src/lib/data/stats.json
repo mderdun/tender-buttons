@@ -4,17 +4,20 @@
 		{
 			"id": "objects",
 			"title": "Objects",
-			"portraits": 58
+			"portraits": 58,
+			"exclusivity": 0.423
 		},
 		{
 			"id": "food",
 			"title": "Food",
-			"portraits": 51
+			"portraits": 51,
+			"exclusivity": 0.383
 		},
 		{
 			"id": "rooms",
 			"title": "Rooms",
-			"portraits": 1
+			"portraits": 1,
+			"exclusivity": 0.415
 		}
 	],
 	"tokens": 14901,
@@ -50,6 +53,162 @@
 		"foot_leg": 110,
 		"torso": 49
 	},
+	"perceptualTokens": {
+		"visual": 4759,
+		"interoceptive": 638,
+		"auditory": 600,
+		"gustatory": 306,
+		"haptic": 290,
+		"olfactory": 31
+	},
+	"actionTokens": {
+		"hand_arm": 1305,
+		"head": 4252,
+		"foot_leg": 246,
+		"mouth": 707,
+		"torso": 114
+	},
+	"comparison": [
+		{
+			"id": "visual",
+			"stein": {
+				"n": 1797,
+				"share": 71.823,
+				"exclusivity": 0.427
+			},
+			"lancaster": {
+				"n": 29552,
+				"share": 75,
+				"exclusivity": 0.448
+			},
+			"shareDelta": -3.177
+		},
+		{
+			"id": "interoceptive",
+			"stein": {
+				"n": 242,
+				"share": 9.672,
+				"exclusivity": 0.341
+			},
+			"lancaster": {
+				"n": 3546,
+				"share": 9,
+				"exclusivity": 0.368
+			},
+			"shareDelta": 0.672
+		},
+		{
+			"id": "auditory",
+			"stein": {
+				"n": 222,
+				"share": 8.873,
+				"exclusivity": 0.461
+			},
+			"lancaster": {
+				"n": 4528,
+				"share": 11.5,
+				"exclusivity": 0.442
+			},
+			"shareDelta": -2.627
+		},
+		{
+			"id": "gustatory",
+			"stein": {
+				"n": 114,
+				"share": 4.556,
+				"exclusivity": 0.276
+			},
+			"lancaster": {
+				"n": 890,
+				"share": 2.3,
+				"exclusivity": 0.295
+			},
+			"shareDelta": 2.256
+		},
+		{
+			"id": "haptic",
+			"stein": {
+				"n": 113,
+				"share": 4.516,
+				"exclusivity": 0.382
+			},
+			"lancaster": {
+				"n": 675,
+				"share": 1.7,
+				"exclusivity": 0.374
+			},
+			"shareDelta": 2.816
+		},
+		{
+			"id": "olfactory",
+			"stein": {
+				"n": 14,
+				"share": 0.56,
+				"exclusivity": 0.379
+			},
+			"lancaster": {
+				"n": 216,
+				"share": 0.5,
+				"exclusivity": 0.407
+			},
+			"shareDelta": 0.06
+		}
+	],
+	"lancasterTotal": 39407,
+	"maxShareDelta": 3.177,
+	"exclusivityMean": 0.413,
+	"mostUnidimensional": [
+		{
+			"id": "p35",
+			"title": "A PETTICOAT.",
+			"repeat": 0,
+			"section": "objects",
+			"sectionTitle": "Objects",
+			"exclusivity": 0.608
+		},
+		{
+			"id": "p51",
+			"title": "A WHITE HUNTER.",
+			"repeat": 0,
+			"section": "objects",
+			"sectionTitle": "Objects",
+			"exclusivity": 0.552
+		},
+		{
+			"id": "p26",
+			"title": "EYE GLASSES.",
+			"repeat": 0,
+			"section": "objects",
+			"sectionTitle": "Objects",
+			"exclusivity": 0.538
+		}
+	],
+	"mostMultidimensional": [
+		{
+			"id": "p75",
+			"title": "POTATOES.",
+			"repeat": 0,
+			"section": "food",
+			"sectionTitle": "Food",
+			"exclusivity": 0.227
+		},
+		{
+			"id": "p77",
+			"title": "ROAST POTATOES.",
+			"repeat": 0,
+			"section": "food",
+			"sectionTitle": "Food",
+			"exclusivity": 0.237
+		},
+		{
+			"id": "p27",
+			"title": "CUTLET.",
+			"repeat": 0,
+			"section": "objects",
+			"sectionTitle": "Objects",
+			"exclusivity": 0.253
+		}
+	],
 	"droppedRows": {
 		"numeric": [
 			"2",

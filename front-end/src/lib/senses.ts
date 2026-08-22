@@ -42,11 +42,11 @@ export const SCHEMES: Record<SchemeId, Scheme> = {
 		label: 'Body',
 		description: 'Which part of the body a word most strongly implies acting with.',
 		categories: [
-			{ id: 'hand_arm', label: 'Hand & arm', gloss: 'handled' },
 			{ id: 'head', label: 'Head', gloss: 'done with the head' },
+			{ id: 'hand_arm', label: 'Hand & arm', gloss: 'handled' },
 			{ id: 'mouth', label: 'Mouth', gloss: 'spoken, eaten' },
-			{ id: 'torso', label: 'Torso', gloss: 'done with the trunk' },
-			{ id: 'foot_leg', label: 'Foot & leg', gloss: 'walked, kicked' }
+			{ id: 'foot_leg', label: 'Foot & leg', gloss: 'walked, kicked' },
+			{ id: 'torso', label: 'Torso', gloss: 'done with the trunk' }
 		]
 	}
 };

@@ -6,6 +6,16 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!--
+			Linked here rather than @import-ed from app.css. An @import is only
+			discovered once the stylesheet that contains it has downloaded and parsed,
+			which put the font request two round trips behind the document and made the
+			preconnects above nearly useless. Both cuts come in one request.
+		-->
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400..900;1,400..900&family=Vollkorn+SC:wght@600&display=swap"
+		/>
 		<meta
 			name="description"
 			content="Gertrude Stein's Tender Buttons (1914), with every word marked for the sense it draws on, using the Lancaster Sensorimotor Norms."

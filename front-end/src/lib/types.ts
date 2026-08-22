@@ -29,6 +29,8 @@ export interface Portrait {
 	id: string;
 	n: number;
 	titleText: string;
+	/** Mean perceptual exclusivity of this portrait's rated words, 0-1. */
+	exclusivity: number;
 	/** 0 unless the title repeats, in which case its ordinal within the repeats. */
 	repeat: number;
 	title: Segment[];
@@ -38,6 +40,8 @@ export interface Portrait {
 export interface Section {
 	id: string;
 	title: string;
+	/** Mean of this division's portrait exclusivities, 0-1. */
+	exclusivity: number;
 	portraits: Portrait[];
 }
 

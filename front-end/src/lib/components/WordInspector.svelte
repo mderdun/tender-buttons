@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { loadNorms, normalise } from '$lib/norms';
 	import { DIMENSION_LABELS, MAX_RATING, SCHEMES } from '$lib/senses';
+	import { settings } from '$lib/settings.svelte';
 	import type { WordNorms } from '$lib/types';
 
 	let {
@@ -37,7 +38,10 @@
 		for (const key of table.keys()) {
 			if (key === needle) continue;
 			if (key.startsWith(needle)) starts.push(key);
-			else if (key.includes(needle)) contains.push(key);
+			else if (contains.length < 8) contains.push(key);
+			// Both lists have to be full before the walk can stop; guarding on
+			// `starts` alone meant a rare prefix scanned all 2,502 keys per
+			// keystroke while `contains` grew without limit.
 			if (starts.length >= 8) break;
 		}
 		return [...starts, ...contains].slice(0, 8);
@@ -53,6 +57,13 @@
 	function labelFor(scheme: 'perceptual' | 'action', id: string): string {
 		return SCHEMES[scheme].categories.find((c) => c.id === id)?.label ?? id;
 	}
+
+	function glossFor(scheme: 'perceptual' | 'action', id: string): string {
+		return SCHEMES[scheme].categories.find((c) => c.id === id)?.gloss ?? '';
+	}
+
+	/** Exclusivity is 0-1; readers meet it as a percentage everywhere else. */
+	const asPct = (value: number) => `${Math.round(value * 100)}%`;
 
 	function submit(event: SubmitEvent) {
 		event.preventDefault();
@@ -77,12 +88,14 @@
 			bind:value={query}
 			placeholder="Look up a word"
 			aria-label="Look up a word in the sensorimotor norms"
+			aria-describedby="suggestions-hint"
 			autocomplete="off"
 			spellcheck="false"
 		/>
 	</form>
 
 	{#if suggestions.length}
+		<p class="hint" id="suggestions-hint">Also rated</p>
 		<ul class="suggestions">
 			{#each suggestions as suggestion (suggestion)}
 				<li>
@@ -97,13 +110,25 @@
 		</ul>
 	{/if}
 
+	<!-- The record replaces itself silently otherwise, and the search field is
+	     documented as the screen-reader route to this data. -->
+	<p class="visually-hidden" role="status">
+		{#if word && entry}
+			{word.toLowerCase()}: {labelFor('perceptual', entry.perceptual)} by sense,
+			{labelFor('action', entry.action)} by body.
+		{:else if word && table && !entry}
+			{word.toLowerCase()} is not in the Lancaster norms.
+		{/if}
+	</p>
+
 	{#if failed}
 		<p class="note">The norm table could not be loaded. Reload the page to try again.</p>
 	{:else if word}
-		<div class="record">
+		<!-- tabindex so a narrow-screen selection can send focus straight here. -->
+		<div class="record" tabindex="-1">
 			<div class="head">
 				<h3>{word.toLowerCase()}</h3>
-				<button class="clear label" onclick={onclear} aria-label="Close word details">Close</button>
+				<button class="clear" onclick={onclear} aria-label="Close word details">Close</button>
 			</div>
 
 			{#if !table}
@@ -114,40 +139,57 @@
 					so they are left unmarked in the text.
 				</p>
 			{:else}
-				<dl class="dominance">
+				{#if !settings.annotations}
+					<p class="note">
+						Marking is switched off, so this word is not underlined anywhere in the text.
+					</p>
+				{/if}
+
+				<dl class="readings">
 					<div>
 						<dt class="label">Sense</dt>
 						<dd>
 							<span class="swatch" data-cat={entry.perceptual}></span>
-							{labelFor('perceptual', entry.perceptual)}
-							<span class="excl numeric">{entry.perceptualExclusivity.toFixed(2)}</span>
+							<span class="reading">{labelFor('perceptual', entry.perceptual)}</span>
+							<span class="gloss">{glossFor('perceptual', entry.perceptual)}</span>
+							<span class="excl numeric">{asPct(entry.perceptualExclusivity)}</span>
 						</dd>
 					</div>
 					<div>
 						<dt class="label">Body</dt>
 						<dd>
 							<span class="swatch" data-cat={entry.action}></span>
-							{labelFor('action', entry.action)}
-							<span class="excl numeric">{entry.actionExclusivity.toFixed(2)}</span>
+							<span class="reading">{labelFor('action', entry.action)}</span>
+							<span class="gloss">{glossFor('action', entry.action)}</span>
+							<span class="excl numeric">{asPct(entry.actionExclusivity)}</span>
 						</dd>
 					</div>
 				</dl>
 
-				<ul class="bars">
-					{#each ranked as dimension (dimension.id)}
-						<li>
-							<span class="dim">{dimension.label}</span>
-							<span class="bar" aria-hidden="true">
-								<span
-									class="fill"
-									style="--c: var(--s-{dimension.id}); width: {(dimension.value / MAX_RATING) *
-										100}%"
-								></span>
-							</span>
-							<span class="val numeric">{dimension.value.toFixed(2)}</span>
-						</li>
-					{/each}
-				</ul>
+				<p class="note">
+					The percentage is <em>exclusivity</em>: how far that one category leads the other five. A
+					high figure means the word reaches for a single sense, a low one that it reaches for
+					several at once. It sets the weight of the underline in the text.
+				</p>
+
+				<table class="ratings">
+					<caption class="label">Ratings <span class="scale numeric">0–{MAX_RATING}</span></caption>
+					<tbody>
+						{#each ranked as dimension (dimension.id)}
+							<tr>
+								<th scope="row">{dimension.label}</th>
+								<td class="plot">
+									<span
+										class="fill"
+										style="--c: var(--s-{dimension.id}); width: {(dimension.value / MAX_RATING) *
+											100}%"
+									></span>
+								</td>
+								<td class="val numeric">{dimension.value.toFixed(2)}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			{/if}
 		</div>
 	{/if}
@@ -157,7 +199,7 @@
 	.inspector {
 		display: flex;
 		flex-direction: column;
-		gap: 0.6rem;
+		gap: 0.55rem;
 	}
 
 	h2 {
@@ -168,7 +210,7 @@
 		width: 100%;
 		font: inherit;
 		font-size: 0.9rem;
-		padding: 0.35rem 0.5rem;
+		padding: 0.4rem 0.5rem;
 		background: var(--surface);
 		color: var(--ink);
 		border: 1px solid var(--rule-strong);
@@ -176,6 +218,15 @@
 	}
 
 	input::placeholder {
+		color: var(--graphite);
+		opacity: 1;
+	}
+
+	.hint {
+		margin: 0;
+		font-family: var(--sc);
+		font-size: 0.74rem;
+		letter-spacing: 0.04em;
 		color: var(--graphite);
 	}
 
@@ -185,35 +236,54 @@
 		padding: 0;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.25rem;
+		gap: 0.3rem 0.5rem;
 	}
 
+	/* Words, so they are set in the text face and italicised the way a cited form
+	   is — not as monospace chips. */
 	.suggestions button {
-		font-family: var(--mono);
-		font-size: 0.72rem;
-		padding: 0.12rem 0.35rem;
-		border: 1px solid var(--rule);
+		font-size: 0.86rem;
+		font-style: italic;
+		padding: 0.24rem 0;
 		color: var(--graphite);
+		text-decoration: underline;
+		text-decoration-color: var(--rule-strong);
+		text-underline-offset: 3px;
 	}
 
 	.suggestions button:hover {
-		border-color: var(--ink);
 		color: var(--ink);
+		text-decoration-color: currentColor;
 	}
 
 	.note {
 		margin: 0;
-		font-size: 0.82rem;
-		line-height: 1.5;
+		font-size: 0.8rem;
+		line-height: 1.55;
 		color: var(--graphite);
+		text-wrap: pretty;
+	}
+
+	.note em {
+		font-style: italic;
+		color: var(--ink-2);
+	}
+
+	.record:focus {
+		outline: none;
+	}
+
+	.record:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 4px;
 	}
 
 	.record {
 		display: flex;
 		flex-direction: column;
-		gap: 0.7rem;
+		gap: 0.6rem;
 		padding-top: 0.5rem;
-		border-top: 1px solid var(--rule);
+		border-top: 1px solid var(--ink);
 	}
 
 	.head {
@@ -225,7 +295,7 @@
 
 	h3 {
 		margin: 0;
-		font-size: 1.35rem;
+		font-size: 1.5rem;
 		font-weight: 500;
 		font-style: italic;
 		line-height: 1.2;
@@ -233,23 +303,30 @@
 	}
 
 	.clear {
+		font-family: var(--sc);
+		font-size: 0.78rem;
+		letter-spacing: 0.04em;
 		color: var(--graphite);
 		text-decoration: underline;
-		text-underline-offset: 2px;
+		text-decoration-color: var(--rule-strong);
+		text-underline-offset: 3px;
+		padding: 0.25rem 0;
+		flex: none;
 	}
 
 	.clear:hover {
 		color: var(--ink);
+		text-decoration-color: currentColor;
 	}
 
-	.dominance {
+	.readings {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
+		gap: 0.45rem;
 		margin: 0;
 	}
 
-	.dominance div {
+	.readings div {
 		display: flex;
 		flex-direction: column;
 		gap: 0.15rem;
@@ -261,55 +338,91 @@
 
 	dd {
 		display: flex;
-		align-items: center;
-		gap: 0.45rem;
+		align-items: baseline;
+		gap: 0.4rem;
 		margin: 0;
 		font-size: 0.92rem;
+		min-width: 0;
 	}
 
-	.excl {
-		margin-left: auto;
-		font-size: 0.74rem;
+	dd .swatch {
+		position: relative;
+		top: 0.1em;
+	}
+
+	.reading {
+		font-family: var(--sc);
+		letter-spacing: 0.03em;
+		white-space: nowrap;
+	}
+
+	.gloss {
+		font-size: 0.8rem;
+		font-style: italic;
 		color: var(--graphite);
-	}
-
-	.bars {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.22rem;
-	}
-
-	.bars li {
-		display: grid;
-		grid-template-columns: 5.4rem 1fr 2.2rem;
-		align-items: center;
-		gap: 0.4rem;
-		font-size: 0.72rem;
-	}
-
-	.dim {
-		color: var(--ink-2);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
-	.bar {
-		height: 0.5rem;
-		background: var(--sunken);
+	.excl {
+		margin-left: auto;
+		font-size: 0.78rem;
+		color: var(--ink-2);
+		flex: none;
+	}
+
+	/* Set as a ruled table, which is what it is: eleven readings against a scale.
+	   The rule length is the same figure the column states, so the quantity is
+	   never carried by the drawing alone. */
+	.ratings {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.78rem;
+	}
+
+	caption.label {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem;
+		text-align: left;
+		padding-bottom: 0.25rem;
+	}
+
+	.scale {
+		font-family: var(--serif);
+		letter-spacing: 0;
+		color: var(--rule-strong);
+	}
+
+	.ratings tr {
+		border-bottom: 1px solid var(--rule);
+	}
+
+	.ratings th {
+		font-weight: 400;
+		text-align: left;
+		padding: 0.22rem 0.4rem 0.22rem 0;
+		color: var(--ink-2);
+		white-space: nowrap;
+	}
+
+	.plot {
+		width: 100%;
+		padding: 0.22rem 0.4rem;
 	}
 
 	.fill {
 		display: block;
-		height: 100%;
+		height: 0.42rem;
 		background: var(--c);
 	}
 
 	.val {
-		color: var(--graphite);
+		padding: 0.22rem 0 0.22rem 0.4rem;
 		text-align: right;
+		color: var(--ink-2);
+		white-space: nowrap;
 	}
 </style>

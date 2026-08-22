@@ -25,7 +25,9 @@
 
 	h3 {
 		font-size: 1.5em;
-		font-weight: 100;
+		/* Vollkorn's variable axis is 400..900, so the 100 that stood here could
+		   not render and silently resolved to 400. Stated honestly instead. */
+		font-weight: 400;
 		margin: 0 0 0.3em;
 	}
 
@@ -39,7 +41,7 @@
 	p {
 		font-size: 1.3em;
 		line-height: 1.8em;
-		font-weight: 100;
+		font-weight: 400;
 		margin: 0 0;
 	}
 
